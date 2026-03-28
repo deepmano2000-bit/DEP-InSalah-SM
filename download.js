@@ -1,48 +1,45 @@
-// download.js
+// Download Management System
 
-class DownloadManager {
-    constructor() {
-        this.downloads = [];
-        this.history = [];
-    }
+const downloadLinks = {
+    windows: 'https://github.com/deepmano2000-bit/DEP-InSalah-SM/releases/download/v1.0.0/DEP-Windows.exe',
+    mac: 'https://github.com/deepmano2000-bit/DEP-InSalah-SM/releases/download/v1.0.0/DEP-Mac.dmg',
+    linux: 'https://github.com/deepmano2000-bit/DEP-InSalah-SM/releases/download/v1.0.0/DEP-Linux.tar.gz',
+    web: 'https://deepmano2000-bit.github.io/DEP-InSalah-SM'
+};
 
-    startDownload(url) {
-        const download = { url, progress: 0, status: 'downloading' };
-        this.downloads.push(download);
-        this.trackProgress(download);
-        return download;
-    }
+const downloadHistory = JSON.parse(localStorage.getItem('downloadHistory')) || [];
 
-    trackProgress(download) {
-        const interval = setInterval(() => {
-            if (download.progress < 100) {
-                download.progress += Math.random() * 10; // Simulate progress
-            } else {
-                clearInterval(interval);
-                download.status = 'completed';
-                this.saveToHistory(download);
-            }
-        }, 1000);
-    }
+function downloadFile(platform) {
+    const link = document.createElement('a');
+    link.href = downloadLinks[platform];
+    link.download = `${platform}-download`; // file name handling based on platform
 
-    saveToHistory(download) {
-        this.history.push(download);
-    }
+    // Simulate download progress
+    simulateDownloadProgress();
 
-    getDownloadHistory() {
-        return this.history;
-    }
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-    cancelDownload(download) {
-        download.status = 'canceled';
-    }
+    // Store download in history
+    downloadHistory.push({platform, date: new Date().toISOString()});
+    localStorage.setItem('downloadHistory', JSON.stringify(downloadHistory));
 }
 
-// Example Usage:
-const manager = new DownloadManager();
-const download1 = manager.startDownload('http://example.com/file1.zip');
-const download2 = manager.startDownload('http://example.com/file2.zip');
+function simulateDownloadProgress() {
+    const progressBar = document.getElementById('progressBar');
+    let progress = 0;
+    const interval = setInterval(() => {
+        if (progress >= 100) {
+            clearInterval(interval);
+            progressBar.style.width = '100%';
+        } else {
+            progress += 10; // Increment progress
+            progressBar.style.width = `${progress}%`;
+        }
+    }, 1000);
+}
 
-setTimeout(() => {
-    console.log(manager.getDownloadHistory());
-}, 12000); // Check history after 12 seconds
+// Example calls:
+// downloadFile('windows');
+// downloadFile('mac');
